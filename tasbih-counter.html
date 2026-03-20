@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>تسبيح - Tasbih Counter</title>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .container {
+      min-height: 100vh;
+      background: 
+        radial-gradient(circle at 50% 0%, #0c4a6e 0%, #164e63 40%, #0e3a4d 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    /* Persian tile mosaic background */
+    .pattern-bg {
+      position: absolute;
+      inset: 0;
+      opacity: 0.25;
+    }
+
+    /* Intricate Islamic star pattern */
+    .pattern-bg::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: 
+        repeating-conic-gradient(from 0deg at 50px 50px, 
+          transparent 0deg 30deg,
+          rgba(6, 182, 212, 0.08) 30deg 60deg,
+          transparent 60deg 90deg,
+          rgba(14, 165, 233, 0.08) 90deg 120deg,
+          transparent 120deg 150deg,
+          rgba(6, 182, 212, 0.08) 150deg 180deg,
+          transparent 180deg 210deg,
+          rgba(14, 165, 233, 0.08) 210deg 240deg,
+          transparent 240deg 270deg,
+          rgba(6, 182, 212, 0.08) 270deg 300deg,
+          transparent 300deg 330deg,
+          rgba(14, 165, 233, 0.08) 330deg 360deg
+        );
+      background-size: 100px 100px;
+    }
+
+    /* Persian hexagonal tile pattern */
+    .pattern-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(60deg, transparent 30%, rgba(251, 191, 36, 0.04) 30%, rgba(251, 191, 36, 0.04) 32%, transparent 32%, transparent 68%, rgba(251, 191, 36, 0.04) 68%, rgba(251, 191, 36, 0.04) 70%, transparent 70%),
+        linear-gradient(-60deg, transparent 30%, rgba(251, 191, 36, 0.04) 30%, rgba(251, 191, 36, 0.04) 32%, transparent 32%, transparent 68%, rgba(251, 191, 36, 0.04) 68%, rgba(251, 191, 36, 0.04) 70%, transparent 70%),
+        linear-gradient(120deg, transparent 30%, rgba(14, 165, 233, 0.04) 30%, rgba(14, 165, 233, 0.04) 32%, transparent 32%, transparent 68%, rgba(14, 165, 233, 0.04) 68%, rgba(14, 165, 233, 0.04) 70%, transparent 70%);
+      background-size: 60px 104px;
+      background-position: 0 0, 0 0, 30px 52px;
+    }
+
+    /* Large Muqarnas dome arch at top */
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(800px, 100%);
+      height: 250px;
+      background: 
+        linear-gradient(180deg, rgba(6, 182, 212, 0.15) 0%, transparent 100%);
+      clip-path: polygon(
+        50% 0%, 
+        48% 8%, 46% 8%, 46% 12%, 44% 12%, 44% 16%, 42% 16%, 42% 20%, 
+        40% 20%, 40% 24%, 38% 24%, 38% 28%, 36% 28%, 36% 32%, 
+        34% 32%, 34% 36%, 32% 36%, 32% 40%, 30% 40%, 30% 50%,
+        28% 50%, 28% 60%, 26% 60%, 26% 70%, 24% 70%, 24% 80%,
+        22% 80%, 22% 90%, 20% 90%, 20% 100%,
+        0% 100%, 0% 0%, 50% 0%,
+        52% 8%, 54% 8%, 54% 12%, 56% 12%, 56% 16%, 58% 16%, 58% 20%,
+        60% 20%, 60% 24%, 62% 24%, 62% 28%, 64% 28%, 64% 32%,
+        66% 32%, 66% 36%, 68% 36%, 68% 40%, 70% 40%, 70% 50%,
+        72% 50%, 72% 60%, 74% 60%, 74% 70%, 76% 70%, 76% 80%,
+        78% 80%, 78% 90%, 80% 90%, 80% 100%,
+        100% 100%, 100% 0%, 50% 0%
+      );
+      border-bottom: 3px solid rgba(6, 182, 212, 0.3);
+    }
+
+    /* Decorative Persian border at bottom */
+    .container::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 120px;
+      background: 
+        repeating-linear-gradient(90deg,
+          transparent 0px,
+          transparent 38px,
+          rgba(251, 191, 36, 0.15) 38px,
+          rgba(251, 191, 36, 0.15) 40px,
+          transparent 40px,
+          rgba(6, 182, 212, 0.15) 42px,
+          rgba(6, 182, 212, 0.15) 44px,
+          transparent 44px,
+          transparent 80px
+        ),
+        linear-gradient(0deg, rgba(12, 74, 110, 0.4) 0%, transparent 100%);
+      border-top: 3px solid rgba(251, 191, 36, 0.3);
+      clip-path: polygon(
+        0 100%, 3% 85%, 6% 85%, 9% 100%, 12% 100%, 15% 85%, 18% 85%, 21% 100%,
+        24% 100%, 27% 85%, 30% 85%, 33% 100%, 36% 100%, 39% 85%, 42% 85%, 45% 100%,
+        48% 100%, 51% 85%, 54% 85%, 57% 100%, 60% 100%, 63% 85%, 66% 85%, 69% 100%,
+        72% 100%, 75% 85%, 78% 85%, 81% 100%, 84% 100%, 87% 85%, 90% 85%, 93% 100%,
+        96% 100%, 99% 85%, 100% 85%, 100% 100%, 100% 0, 0 0
+      );
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 35px;
+      max-width: 500px;
+      width: 100%;
+    }
+
+    .header {
+      text-align: center;
+      animation: fadeInDown 0.8s ease-out;
+      margin-top: 60px;
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .title {
+      font-family: 'Amiri', serif;
+      font-size: 5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fbbf24 0%, #fcd34d 50%, #fbbf24 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 4px 24px rgba(251, 191, 36, 0.5));
+      letter-spacing: 4px;
+    }
+
+    .counter-display-panel {
+      width: 100%;
+      max-width: 400px;
+      animation: fadeIn 1s ease-out 0.2s both;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .mechanical-counter {
+      background: 
+        linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
+      border: 4px solid;
+      border-image: linear-gradient(135deg, 
+        rgba(6, 182, 212, 0.4) 0%,
+        rgba(251, 191, 36, 0.4) 50%,
+        rgba(6, 182, 212, 0.4) 100%
+      ) 1;
+      border-radius: 20px;
+      padding: 24px 20px;
+      box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.5),
+        inset 0 2px 4px rgba(6, 182, 212, 0.2),
+        inset 0 -2px 8px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(6, 182, 212, 0.15);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mechanical-counter::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent 0px,
+        rgba(6, 182, 212, 0.03) 1px,
+        transparent 2px,
+        transparent 4px
+      );
+    }
+
+    .counter-digits {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      position: relative;
+    }
+
+    .digit-slot {
+      background: linear-gradient(180deg, #0a0f1a 0%, #111827 50%, #0a0f1a 100%);
+      border: 2px solid rgba(6, 182, 212, 0.25);
+      border-radius: 8px;
+      padding: 12px 8px;
+      min-width: 48px;
+      box-shadow: 
+        inset 0 2px 8px rgba(0, 0, 0, 0.8),
+        inset 0 -1px 2px rgba(6, 182, 212, 0.1),
+        0 2px 4px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+
+    .digit-slot::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .digit {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #06b6d4;
+      text-align: center;
+      line-height: 1;
+      text-shadow: 
+        0 0 20px rgba(6, 182, 212, 0.8),
+        0 0 40px rgba(6, 182, 212, 0.4);
+      filter: drop-shadow(0 2px 4px rgba(6, 182, 212, 0.5));
+    }
+
+    .sets-info {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 0.875rem;
+      color: rgba(6, 182, 212, 0.7);
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .counter-section {
+      position: relative;
+      animation: scaleIn 1s ease-out 0.4s both;
+    }
+
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .progress-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 280px;
+      height: 280px;
+    }
+
+    .progress-svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .progress-bg {
+      fill: none;
+      stroke: rgba(6, 182, 212, 0.15);
+      stroke-width: 12;
+    }
+
+    .progress-fill {
+      fill: none;
+      stroke: url(#progressGradient);
+      stroke-width: 12;
+      stroke-linecap: round;
+      stroke-dasharray: 534.07;
+      transition: stroke-dashoffset 0.3s ease;
+      filter: drop-shadow(0 0 16px rgba(6, 182, 212, 0.7));
+    }
+
+    .count-button {
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      border: none;
+      background: 
+        radial-gradient(circle at 35% 35%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
+        linear-gradient(145deg, #164e63, #0c4a6e);
+      box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.6),
+        inset 0 -12px 24px rgba(0, 0, 0, 0.4),
+        inset 0 12px 24px rgba(6, 182, 212, 0.15),
+        0 0 0 2px rgba(6, 182, 212, 0.2);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      position: relative;
+      overflow: visible;
+    }
+
+    .count-button::before {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg,
+        rgba(6, 182, 212, 0.4) 0deg,
+        transparent 45deg,
+        rgba(251, 191, 36, 0.4) 90deg,
+        transparent 135deg,
+        rgba(6, 182, 212, 0.4) 180deg,
+        transparent 225deg,
+        rgba(251, 191, 36, 0.4) 270deg,
+        transparent 315deg,
+        rgba(6, 182, 212, 0.4) 360deg
+      );
+      animation: borderRotate 10s linear infinite;
+      opacity: 0.6;
+      z-index: -1;
+    }
+
+    @keyframes borderRotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .pulse-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 3px solid;
+      pointer-events: none;
+      width: 220px;
+      height: 220px;
+    }
+
+    .pulse-ring.pulse-small {
+      border-color: rgba(6, 182, 212, 0.7);
+      animation: pulseSmall 0.3s ease-out;
+    }
+
+    .pulse-ring.pulse-big {
+      border-color: rgba(251, 191, 36, 0.9);
+      animation: pulseBig 0.6s ease-out;
+    }
+
+    @keyframes pulseSmall {
+      0% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1.3);
+        opacity: 0;
+      }
+    }
+
+    @keyframes pulseBig {
+      0% {
+        transform: scale(1);
+        opacity: 1;
+        border-width: 3px;
+      }
+      50% {
+        border-width: 7px;
+      }
+      100% {
+        transform: scale(1.5);
+        opacity: 0;
+        border-width: 1px;
+      }
+    }
+
+    .count-button:hover {
+      transform: scale(1.02);
+    }
+
+    .count-button.pressed {
+      transform: scale(0.94);
+      box-shadow: 
+        0 12px 35px rgba(0, 0, 0, 0.5),
+        inset 0 12px 30px rgba(0, 0, 0, 0.5),
+        inset 0 -6px 18px rgba(6, 182, 212, 0.1);
+    }
+
+    .tap-label {
+      font-size: 2rem;
+      font-weight: 700;
+      color: rgba(6, 182, 212, 0.9);
+      letter-spacing: 8px;
+      text-transform: uppercase;
+      text-shadow: 
+        0 2px 20px rgba(6, 182, 212, 0.6),
+        0 0 40px rgba(6, 182, 212, 0.3);
+    }
+
+    .reset-button {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(14, 165, 233, 0.1) 100%);
+      border: 2px solid rgba(6, 182, 212, 0.3);
+      color: rgba(6, 182, 212, 0.9);
+      padding: 16px 36px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.3s ease;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      animation: fadeIn 1s ease-out 0.6s both;
+      backdrop-filter: blur(10px);
+    }
+
+    .reset-button:hover {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(14, 165, 233, 0.2) 100%);
+      border-color: rgba(6, 182, 212, 0.5);
+      color: #06b6d4;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .reset-button:active {
+      transform: translateY(0);
+    }
+
+    @media (max-width: 600px) {
+      .title {
+        font-size: 4rem;
+      }
+
+      .digit-slot {
+        min-width: 42px;
+        padding: 10px 6px;
+      }
+
+      .digit {
+        font-size: 2.2rem;
+      }
+
+      .progress-ring {
+        width: 240px;
+        height: 240px;
+      }
+
+      .count-button {
+        width: 180px;
+        height: 180px;
+      }
+
+      .count-button::before {
+        inset: -2px;
+      }
+
+      .pulse-ring {
+        width: 180px;
+        height: 180px;
+      }
+
+      .tap-label {
+        font-size: 1.6rem;
+        letter-spacing: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="pattern-bg"></div>
+    
+    <div class="content">
+      <div class="header">
+        <h1 class="title">تسبيح</h1>
+      </div>
+
+      <div class="counter-display-panel">
+        <div class="mechanical-counter">
+          <div class="counter-digits" id="counterDigits"></div>
+        </div>
+        <div class="sets-info" id="setsInfo">0 sets of 100 completed</div>
+      </div>
+
+      <div class="counter-section">
+        <div class="progress-ring">
+          <svg class="progress-svg" viewBox="0 0 200 200">
+            <defs>
+              <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#0fa8a0" />
+                <stop offset="50%" stop-color="#1ac5bd" />
+                <stop offset="100%" stop-color="#0fa8a0" />
+              </linearGradient>
+            </defs>
+            <circle class="progress-bg" cx="100" cy="100" r="85" />
+            <circle class="progress-fill" id="progressCircle" cx="100" cy="100" r="85" />
+          </svg>
+        </div>
+        
+        <button class="count-button" id="countButton">
+          <div class="tap-label">TAP</div>
+        </button>
+      </div>
+
+      <button class="reset-button" id="resetButton">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+          <path d="M21 3v5h-5" />
+          <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+          <path d="M3 21v-5h5" />
+        </svg>
+        Reset
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let count = 0;
+    let isPressed = false;
+
+    const countButton = document.getElementById('countButton');
+    const resetButton = document.getElementById('resetButton');
+    const counterDigits = document.getElementById('counterDigits');
+    const setsInfo = document.getElementById('setsInfo');
+    const progressCircle = document.getElementById('progressCircle');
+
+    function vibrate(pattern) {
+      if ('vibrate' in navigator) {
+        try {
+          navigator.vibrate(pattern);
+        } catch (e) {
+          console.log('Vibration not supported');
+        }
+      }
+    }
+
+    function createPulseRing(intensity) {
+      const ring = document.createElement('div');
+      ring.className = `pulse-ring pulse-${intensity}`;
+      countButton.appendChild(ring);
+      setTimeout(() => ring.remove(), 600);
+    }
+
+    function updateDisplay() {
+      const digits = String(count).padStart(6, '0').split('');
+      counterDigits.innerHTML = digits.map(digit => 
+        `<div class="digit-slot"><div class="digit">${digit}</div></div>`
+      ).join('');
+
+      const completedSets = Math.floor(count / 100);
+      setsInfo.textContent = `${completedSets} sets of 100 completed`;
+
+      const progressToNext100 = ((count % 100) / 100) * 100;
+      const dashOffset = 534.07 - (534.07 * progressToNext100) / 100;
+      progressCircle.style.strokeDashoffset = dashOffset;
+    }
+
+    function handleCount() {
+      if (count >= 999999) return;
+      
+      count++;
+      
+      if (count % 100 === 0) {
+        vibrate([100, 50, 100, 50, 100]);
+        createPulseRing('big');
+      } else {
+        vibrate(30);
+        createPulseRing('small');
+      }
+      
+      updateDisplay();
+    }
+
+    function handleReset() {
+      count = 0;
+      vibrate([50, 30, 50]);
+      createPulseRing('small');
+      updateDisplay();
+    }
+
+    countButton.addEventListener('click', handleCount);
+    countButton.addEventListener('mousedown', () => {
+      countButton.classList.add('pressed');
+    });
+    countButton.addEventListener('mouseup', () => {
+      countButton.classList.remove('pressed');
+    });
+    countButton.addEventListener('touchstart', () => {
+      countButton.classList.add('pressed');
+    });
+    countButton.addEventListener('touchend', () => {
+      countButton.classList.remove('pressed');
+    });
+
+    resetButton.addEventListener('click', handleReset);
+
+    // Initialize display
+    updateDisplay();
+  </script>
+</body>
+</html>
